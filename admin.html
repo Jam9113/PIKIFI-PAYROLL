@@ -65,39 +65,39 @@
       <li><a href="payroll-history.html"><i class="fas fa-history"></i> <span>Payroll History</span></a></li>
       <li class="active"><a href="employee.html"><i class="fas fa-user-tie"></i> <span>Employee</span></a></li>
       <li><a href="bonus.html"><i class="fas fa-calendar-alt"></i> <span>13th Month Pay</span></a></li>
-       <li><a href="employee-portal.html"><i class="fas fa-user-tie"></i><span>Employee Portal</span></a></li>
+      <li><a href="employee-portal.html"><i class="fas fa-user-tie"></i><span>Employee Portal</span></a></li>
     </ul>
   </div>
 
- 
   <div class="main-content">
     <div class="header">
       <h1>Admin Section</h1>
     </div>
-<div class="admin-leave-section" style="margin-top: 40px;">>
- <form id="addEmployeeForm" class="leave-form">
-    <h4>Add New Employee</h4>
-    <input type="text" id="empName" placeholder="Full Name" required />
-    <input type="text" id="empDepartment" placeholder="Department" required />
-    <input type="text" id="empPosition" placeholder="Position" required />
-    <button type="submit">Add Employee</button>
-  </form>
 
- 
-  <h4 style="margin-top: 20px;">Employee List</h4>
-  <table id="employeeTable">
-    <thead>
-      <tr>
-        <th>Full Name</th>
-        <th>Department</th>
-        <th>Position</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
- <div class="admin-leave-section" style="margin-top: 40px;">
+    <div class="admin-leave-section" style="margin-top: 40px;">
+      <form id="addEmployeeForm" class="leave-form">
+        <h4>Add New Employee</h4>
+        <input type="text" id="empName" placeholder="Full Name" required />
+        <input type="text" id="empDepartment" placeholder="Department" required />
+        <input type="text" id="empPosition" placeholder="Position" required />
+        <button type="submit">Add Employee</button>
+      </form>
+
+      <h4 style="margin-top: 20px;">Employee List</h4>
+      <table id="employeeTable">
+        <thead>
+          <tr>
+            <th>Full Name</th>
+            <th>Department</th>
+            <th>Position</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="admin-leave-section" style="margin-top: 40px;">
       <h3>Pending Leave Requests</h3>
       <table id="leaveTable">
         <thead>
@@ -113,13 +113,15 @@
       </table>
     </div>
   </div>
- </div>
+
 <script>
   window.onload = function () {
     loadEmployees();
+    loadLeaveRequests();
   };
 
   async function loadEmployees() {
+    console.log('Loading employees...');
     try {
       const res = await fetch('https://employee-admin-y5y3.onrender.com/api/employees');
       const employees = await res.json();
@@ -185,39 +187,52 @@
       alert('Failed to delete employee.');
     }
   }
+
   async function loadLeaveRequests() {
-  try {
-    const res = await fetch('https://leaves-2diq.onrender.com/api/leaves');
-    const leaves = await res.json();
+    console.log('Loading leave requests...');
+    try {
+      const res = await fetch('https://leaves-2diq.onrender.com/api/leaves');
+      const leaves = await res.json();
 
-    const tbody = document.querySelector('#leaveTable tbody');
-    tbody.innerHTML = '';
+      const tbody = document.querySelector('#leaveTable tbody');
+      tbody.innerHTML = '';
 
-    leaves.forEach(leave => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${new Date(leave.date).toLocaleDateString()}</td>
-        <td>${leave.type}</td>
-        <td>${leave.reason}</td>
-        <td>${leave.status}</td>
-        <td>
-          <button onclick="updateLeaveStatus('${leave._id}', 'Approved')">Approve</button>
-          <button onclick="updateLeaveStatus('${leave._id}', 'Rejected')">Reject</button>
-        </td>
-      `;
-      tbody.appendChild(row);
-    });
-  } catch (err) {
-    console.error('Error loading leave requests:', err);
-    alert('Unable to load leave requests.');
+      leaves.forEach(leave => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${new Date(leave.date).toLocaleDateString()}</td>
+          <td>${leave.type}</td>
+          <td>${leave.reason}</td>
+          <td>${leave.status}</td>
+          <td>
+            <button onclick="updateLeaveStatus('${leave._id}', 'Approved')">Approve</button>
+            <button onclick="updateLeaveStatus('${leave._id}', 'Rejected')">Reject</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    } catch (err) {
+      console.error('Error loading leave requests:', err);
+      alert('Unable to load leave requests.');
+    }
   }
-}
-window.onload = function () {
-  loadEmployees();
-  loadLeaveRequests(); 
-};
 
+  async function updateLeaveStatus(id, status) {
+    try {
+      const res = await fetch(`https://leaves-2diq.onrender.com/api/leaves/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+
+      const result = await res.json();
+      alert(result.message || `Leave ${status.toLowerCase()} successfully`);
+      loadLeaveRequests();
+    } catch (err) {
+      console.error(err);
+      alert(`Failed to update leave status to ${status}.`);
+    }
+  }
 </script>
 </body>
 </html>
-
