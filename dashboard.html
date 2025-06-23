@@ -215,7 +215,7 @@
       <li><a href="employee.html"><i class="fas fa-user-tie"></i> <span>Employee</span></a></li>
       <li><a href="bonus.html"><i class="fas fa-calendar-alt"></i> <span>13th Month Pay</span></a></li>
       <li><a href="employee-portal.html"><i class="fas fa-user-tie"></i><span>Employee Portal</span></a></li>
-      <li><a href="admin.html"><i class="fas fa-user-tie"></i><span>Admin</span></a></li>
+      <li><a href="admin.html"><i class="fas fa-user-shield"></i> <span>Admin</span></a></li>
     </ul>
   </div>
 
@@ -227,19 +227,10 @@
         <button id="notificationToggle" title="Toggle Notifications">
           <i class="fas fa-bell" style="font-size: 20px; color: #009ddc;"></i>
         </button>
+</button>
+
       </div>
     </div>
-
-    <!-- Notification Section -->
-    <section class="notification-section" id="notificationPanel" style="display: none;">
-      <h3>Notification Panel</h3>
-      <form id="notificationForm" class="schedule-form">
-        <input type="text" id="notificationInput" placeholder="Enter notification..." required />
-        <button type="submit">Add Notification</button>
-      </form>
-      <ul id="notificationList" style="margin-top: 15px; list-style: none; padding: 0;"></ul>
-    </section>
-
     <div class="dashboard-widgets">
       <a href="employee.html" class="widget">
         <i class="fas fa-users"></i>
@@ -256,10 +247,6 @@
       <a href="employee-portal.html" class="widget">
         <i class="fas fa-users"></i>
         <p>Employees Portal</p>
-    </div>
-     <a href="admin.html" class="widget">
-        <i class="fas fa-users"></i>
-        <p>Admin</p>
     </div>
 
     <div class="chart-container">
@@ -307,13 +294,12 @@
   </div>
 
   <script>
-    // Clock
+
     setInterval(() => {
       const now = new Date();
       document.getElementById('clock').textContent = now.toLocaleTimeString();
     }, 1000);
-
-    // Notification Logic
+c
     document.addEventListener('DOMContentLoaded', () => {
       const toggle = document.getElementById('notificationToggle');
       const panel = document.getElementById('notificationPanel');
@@ -326,7 +312,7 @@
       });
 
       async function loadNotifications() {
-        const res = await fetch('http://localhost:4002/api/notifications');
+        const res = await fetch('https://notification-l3sd.onrender.com/api/notifications');
         const data = await res.json();
         list.innerHTML = '';
         data.forEach(note => {
@@ -343,7 +329,7 @@
         e.preventDefault();
         const text = input.value.trim();
         if (!text) return;
-        await fetch('http://localhost:4002/api/notifications', {
+        await fetch('https://notification-l3sd.onrender.com/api/notifications', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ text })
@@ -352,12 +338,21 @@
         loadNotifications();
       });
 
+      document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.clear(); 
+
+    alert('You have been logged out.');
+    window.location.href = 'index.html'; 
+  });
+
       window.deleteNotification = async function(id) {
-        await fetch(`http://localhost:4002/api/notifications/${id}`, { method: 'DELETE' });
+        await fetch(`https://notification-l3sd.onrender.com/api/notifications/${id}`, { method: 'DELETE' });
         loadNotifications();
       };
 
       loadNotifications();
+
+
     });
   </script>
 </body>
