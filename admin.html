@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title> Admin Panel</title>
+  <title>Admin Panel</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins"/>
   <link rel="stylesheet" href="css/main.css" />
@@ -29,6 +29,8 @@
       padding: 5px 10px;
       border-radius: 4px;
       cursor: pointer;
+      margin-bottom: 10px;
+      margin-right: 10px;
     }
     .leave-form {
       margin-top: 30px;
@@ -55,7 +57,7 @@
   </style>
 </head>
 <body>
- 
+
   <div class="sidebar">
     <img src="./img/pikifi_logo.png" alt="Logo" class="img" />
     <div class="logo">PIKIFI</div>
@@ -76,7 +78,7 @@
     </div>
 
     <div class="admin-leave-section" style="margin-top: 40px;">
-      <form id="addEmployeeForm" class="leave-form">
+      <form id="addEmployeeForm" class="leave-form" enctype="multipart/form-data">
         <h4>Add New Employee</h4>
         <input type="text" id="empName" placeholder="Full Name" required />
         <input type="text" id="empDepartment" placeholder="Department" required />
@@ -85,6 +87,7 @@
       </form>
 
       <h4 style="margin-top: 20px;">Employee List</h4>
+      <button class="print-btn" onclick="exportEmployeesToCSV()">Export Employees to CSV</button>
       <table id="employeeTable">
         <thead>
           <tr>
@@ -100,6 +103,7 @@
 
     <div class="admin-leave-section" style="margin-top: 40px;">
       <h3>Pending Leave Requests</h3>
+      <button class="print-btn" onclick="exportLeavesToCSV()">Export Leave Requests to CSV</button>
       <table id="leaveTable">
         <thead>
           <tr>
@@ -116,35 +120,33 @@
   </div>
 
 <script>
+  const employeeApi = 'https://employee-service-gec9.onrender.com/api/employees';
+  const leaveApi = 'https://leaves-2diq.onrender.com/api/leaves';
+
   window.onload = function () {
     loadEmployees();
     loadLeaveRequests();
   };
 
   async function loadEmployees() {
-    console.log('Loading employees...');
     try {
-      const res = await fetch('https://employee-admin-y5y3.onrender.com/api/employees');
+      const res = await fetch(employeeApi);
       const employees = await res.json();
-
       const tbody = document.querySelector('#employeeTable tbody');
       tbody.innerHTML = '';
-
       employees.forEach(emp => {
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>${emp.name}</td>
           <td>${emp.department}</td>
           <td>${emp.position}</td>
-          <td>
-            <button onclick="deleteEmployee('${emp._id}')">Delete</button>
-          </td>
+          <td><button onclick="deleteEmployee('${emp._id}')">Delete</button></td>
         `;
         tbody.appendChild(row);
       });
     } catch (err) {
       console.error(err);
-      alert('Error loading employees. Please try again later.');
+      alert('Error loading employees.');
     }
   }
 
@@ -154,12 +156,18 @@
     const name = document.getElementById('empName').value;
     const department = document.getElementById('empDepartment').value;
     const position = document.getElementById('empPosition').value;
+    const documentFile = document.getElementById('empDocument').files[0];
+
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('department', department);
+    formData.append('position', position);
+    if (documentFile) formData.append('document', documentFile);
 
     try {
-      const res = await fetch('https://employee-admin-y5y3.onrender.com/api/employees', {
+      const res = await fetch(employeeApi, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, department, position })
+        body: formData
       });
 
       const result = await res.json();
@@ -173,13 +181,11 @@
   });
 
   async function deleteEmployee(id) {
-    if (!confirm('Are you sure you want to delete this employee?')) return;
-
+    if (!confirm('Are you sure?')) return;
     try {
-      const res = await fetch(`https://employee-admin-y5y3.onrender.com/api/employees/${id}`, {
+      const res = await fetch(`${employeeApi}/${id}`, {
         method: 'DELETE'
       });
-
       const result = await res.json();
       alert(result.message || 'Employee deleted');
       loadEmployees();
@@ -190,14 +196,11 @@
   }
 
   async function loadLeaveRequests() {
-    console.log('Loading leave requests...');
     try {
-      const res = await fetch('https://leaves-2diq.onrender.com/api/leaves');
+      const res = await fetch(leaveApi);
       const leaves = await res.json();
-
       const tbody = document.querySelector('#leaveTable tbody');
       tbody.innerHTML = '';
-
       leaves.forEach(leave => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -213,27 +216,66 @@
         tbody.appendChild(row);
       });
     } catch (err) {
-      console.error('Error loading leave requests:', err);
+      console.error(err);
       alert('Unable to load leave requests.');
     }
   }
 
   async function updateLeaveStatus(id, status) {
     try {
-      const res = await fetch(`https://leaves-2diq.onrender.com/api/leaves/${id}`, {
+      const res = await fetch(`${leaveApi}/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
       });
-
       const result = await res.json();
       alert(result.message || `Leave ${status.toLowerCase()} successfully`);
       loadLeaveRequests();
     } catch (err) {
       console.error(err);
-      alert(`Failed to update leave status to ${status}.`);
+      alert(`Failed to update leave status.`);
     }
+  }
+
+  function exportEmployeesToCSV() {
+    const rows = [['Full Name', 'Department', 'Position']];
+    document.querySelectorAll('#employeeTable tbody tr').forEach(tr => {
+      const cells = tr.querySelectorAll('td');
+      rows.push([
+        cells[0].innerText,
+        cells[1].innerText,
+        cells[2].innerText
+      ]);
+    });
+    downloadCSV(rows, 'employees.csv');
+  }
+
+  function exportLeavesToCSV() {
+    const rows = [['Date', 'Type', 'Reason', 'Status']];
+    document.querySelectorAll('#leaveTable tbody tr').forEach(tr => {
+      const cells = tr.querySelectorAll('td');
+      rows.push([
+        cells[0].innerText,
+        cells[1].innerText,
+        cells[2].innerText,
+        cells[3].innerText
+      ]);
+    });
+    downloadCSV(rows, 'leave_requests.csv');
+  }
+
+  function downloadCSV(data, filename) {
+    const csvContent = data.map(e => e.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 </script>
 </body>
 </html>
+
