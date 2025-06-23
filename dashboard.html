@@ -148,7 +148,6 @@
       background-color: #c0392b;
     }
 
-    /* NEW: Notification */
     .notification-section {
       background: white;
       padding: 15px;
@@ -196,12 +195,12 @@
       border: none;
       cursor: pointer;
     }
-    @media (max-width: 600px) {
-  .dashboard-widgets {
-    grid-template-columns: 1fr;
-  }
-}
 
+    @media (max-width: 600px) {
+      .dashboard-widgets {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
@@ -227,10 +226,21 @@
         <button id="notificationToggle" title="Toggle Notifications">
           <i class="fas fa-bell" style="font-size: 20px; color: #009ddc;"></i>
         </button>
-</button>
-
+        <button id="logoutBtn" style="background-color: #e74c3c; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
       </div>
     </div>
+
+    <section class="notification-section" id="notificationPanel" style="display: none;">
+      <h3>Notification Panel</h3>
+      <form id="notificationForm" class="schedule-form">
+        <input type="text" id="notificationInput" placeholder="Enter notification..." required />
+        <button type="submit">Add Notification</button>
+      </form>
+      <ul id="notificationList" style="margin-top: 15px; list-style: none; padding: 0;"></ul>
+    </section>
+
     <div class="dashboard-widgets">
       <a href="employee.html" class="widget">
         <i class="fas fa-users"></i>
@@ -247,6 +257,7 @@
       <a href="employee-portal.html" class="widget">
         <i class="fas fa-users"></i>
         <p>Employees Portal</p>
+      </a>
     </div>
 
     <div class="chart-container">
@@ -254,8 +265,6 @@
       <canvas id="payrollChart"></canvas>
     </div>
 
-
-    <!-- Schedule Section -->
     <section class="schedule-section">
       <h3>Create Your Schedule</h3>
       <form class="schedule-form" id="scheduleForm">
@@ -265,19 +274,14 @@
           <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
           <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
         </select>
-
         <label for="startTime">Start Time:</label>
         <input type="time" id="startTime" required />
-
         <label for="endTime">End Time:</label>
         <input type="time" id="endTime" required />
-
         <label for="notes">Notes:</label>
         <input type="text" id="notes" placeholder="Add notes" />
-
         <button type="submit">Add Schedule</button>
       </form>
-
       <div class="schedule-list">
         <table id="scheduleTable" style="width: 100%; margin-top: 15px;">
           <thead>
@@ -294,12 +298,11 @@
   </div>
 
   <script>
-
     setInterval(() => {
       const now = new Date();
       document.getElementById('clock').textContent = now.toLocaleTimeString();
     }, 1000);
-c
+
     document.addEventListener('DOMContentLoaded', () => {
       const toggle = document.getElementById('notificationToggle');
       const panel = document.getElementById('notificationPanel');
@@ -339,11 +342,10 @@ c
       });
 
       document.getElementById('logoutBtn').addEventListener('click', () => {
-    localStorage.clear(); 
-
-    alert('You have been logged out.');
-    window.location.href = 'index.html'; 
-  });
+        localStorage.clear();
+        alert('You have been logged out.');
+        window.location.href = 'index.html';
+      });
 
       window.deleteNotification = async function(id) {
         await fetch(`https://notification-l3sd.onrender.com/api/notifications/${id}`, { method: 'DELETE' });
@@ -351,8 +353,6 @@ c
       };
 
       loadNotifications();
-
-
     });
   </script>
 </body>
