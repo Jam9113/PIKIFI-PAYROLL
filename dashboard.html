@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PIKIFI Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins"/>
+  <link rel="stylesheet" href="css/main.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="./js/main.js"></script>
+
+  <style>
+    canvas#payrollChart {
+      max-width: 300px;
+      max-height: 300px;
+      margin: auto;
+      display: block;
+    }
+
+    #clock {
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .dashboard-widgets {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .widget {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0px 3px 10px #009ddc;
+      text-align: center;
+      text-decoration: none;
+      color: black;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: 0.3s;
+    }
+
+    .widget:hover {
+      transform: scale(1.05);
+      box-shadow: 0px 5px 15px #009ddc;
+    }
+
+    .widget i {
+      font-size: 30px;
+    }
+
+    .widget p {
+      margin-top: 5px;
+      font-size: 18px;
+    }
+
+    .chart-container {
+      margin-top: 30px;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .schedule-section {
+      margin-top: 40px;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0px 3px 10px rgba(0,0,0,0.1);
+    }
+
+    .schedule-section h3 {
+      margin-bottom: 15px;
+      color: #009ddc;
+    }
+
+    .schedule-form {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .schedule-form label {
+      font-weight: 600;
+      margin-right: 5px;
+    }
+
+    .schedule-form select,
+    .schedule-form input[type="time"],
+    .schedule-form input[type="text"] {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .schedule-form button {
+      background-color: #009ddc;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .schedule-form button:hover {
+      background-color: #007bbd;
+    }
+
+    .schedule-list {
+      margin-top: 20px;
+    }
+
+    .schedule-list table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .schedule-list th,
+    .schedule-list td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+
+    .schedule-list th {
+      background-color: #009ddc;
+      color: white;
+    }
+
+    .delete-btn {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .delete-btn:hover {
+      background-color: #c0392b;
+    }
+
+    /* NEW: Notification */
+    .notification-section {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.1);
+      margin-top: 20px;
+    }
+
+    #notificationList li {
+      background: #f4f4f4;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      position: relative;
+    }
+
+    #notificationList li button {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      font-size: 12px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+    }
+
+    .header .clock-bell {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    #notificationToggle {
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    @media (max-width: 600px) {
+  .dashboard-widgets {
+    grid-template-columns: 1fr;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <img src="./img/pikifi_logo.png" alt="Logo" class="img"/>
+    <div class="logo">PIKIFI</div>
+    <ul class="main">
+      <li class="active"><a href="/"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
+      <li><a href="payroll.html"><i class="fas fa-money-bill-wave"></i> <span>Payroll</span></a></li>
+      <li><a href="payroll-history.html"><i class="fas fa-history"></i> <span>Payroll History</span></a></li>
+      <li><a href="employee.html"><i class="fas fa-user-tie"></i> <span>Employee</span></a></li>
+      <li><a href="bonus.html"><i class="fas fa-calendar-alt"></i> <span>13th Month Pay</span></a></li>
+      <li><a href="employee-portal.html"><i class="fas fa-user-tie"></i><span>Employee Portal</span></a></li>
+      <li><a href="admin.html"><i class="fas fa-user-shield"></i> <span>Admin</span></a></li>
+    </ul>
+  </div>
+
+  <div class="main-content">
+    <div class="header">
+      <h1>Welcome to PIKIFI Dashboard</h1>
+      <div class="clock-bell">
+        <span id="clock"></span>
+        <button id="notificationToggle" title="Toggle Notifications">
+          <i class="fas fa-bell" style="font-size: 20px; color: #009ddc;"></i>
+        </button>
+        <button id="logoutBtn" style="background-color: #e74c3c; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;">
+  <i class="fas fa-sign-out-alt"></i> Logout
+</button>
+
+      </div>
+    </div>
+
+    <!-- Notification Section -->
+    <section class="notification-section" id="notificationPanel" style="display: none;">
+      <h3>Notification Panel</h3>
+      <form id="notificationForm" class="schedule-form">
+        <input type="text" id="notificationInput" placeholder="Enter notification..." required />
+        <button type="submit">Add Notification</button>
+      </form>
+      <ul id="notificationList" style="margin-top: 15px; list-style: none; padding: 0;"></ul>
+    </section>
+
+    <div class="dashboard-widgets">
+      <a href="employee.html" class="widget">
+        <i class="fas fa-users"></i>
+        <p>Employees</p>
+      </a>
+      <a href="payroll.html" class="widget">
+        <i class="fas fa-peso-sign"></i>
+        <p>Payroll</p>
+      </a>
+      <a href="bonus.html" class="widget">
+        <i class="fas fa-calendar-alt"></i>
+        <p>13th Month Pay</p>
+      </a>
+      <a href="employee-portal.html" class="widget">
+        <i class="fas fa-users"></i>
+        <p>Employees Portal</p>
+    </div>
+
+    <div class="chart-container">
+      <h3>Payroll Distribution</h3>
+      <canvas id="payrollChart"></canvas>
+    </div>
+
+
+    <!-- Schedule Section -->
+    <section class="schedule-section">
+      <h3>Create Your Schedule</h3>
+      <form class="schedule-form" id="scheduleForm">
+        <label for="day">Day:</label>
+        <select id="day" required>
+          <option value="" disabled selected>Select Day</option>
+          <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
+          <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
+        </select>
+
+        <label for="startTime">Start Time:</label>
+        <input type="time" id="startTime" required />
+
+        <label for="endTime">End Time:</label>
+        <input type="time" id="endTime" required />
+
+        <label for="notes">Notes:</label>
+        <input type="text" id="notes" placeholder="Add notes" />
+
+        <button type="submit">Add Schedule</button>
+      </form>
+
+      <div class="schedule-list">
+        <table id="scheduleTable" style="width: 100%; margin-top: 15px;">
+          <thead>
+            <tr><th>Day</th><th>Start Time</th><th>End Time</th><th>Notes</th><th>Action</th></tr>
+          </thead>
+          <tbody id="scheduleRows">
+            <tr>
+              <td colspan="5" style="text-align: center; color: #999;">No schedules added yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script>
+
+    setInterval(() => {
+      const now = new Date();
+      document.getElementById('clock').textContent = now.toLocaleTimeString();
+    }, 1000);
+c
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggle = document.getElementById('notificationToggle');
+      const panel = document.getElementById('notificationPanel');
+      const form = document.getElementById('notificationForm');
+      const input = document.getElementById('notificationInput');
+      const list = document.getElementById('notificationList');
+
+      toggle.addEventListener('click', () => {
+        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+      });
+
+      async function loadNotifications() {
+        const res = await fetch('https://notification-l3sd.onrender.com/api/notifications');
+        const data = await res.json();
+        list.innerHTML = '';
+        data.forEach(note => {
+          const li = document.createElement('li');
+          li.innerHTML = `
+            ${note.text}
+            <button onclick="deleteNotification('${note._id}')">Delete</button>
+          `;
+          list.appendChild(li);
+        });
+      }
+
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+        const text = input.value.trim();
+        if (!text) return;
+        await fetch('https://notification-l3sd.onrender.com/api/notifications', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text })
+        });
+        input.value = '';
+        loadNotifications();
+      });
+
+      document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.clear(); 
+
+    alert('You have been logged out.');
+    window.location.href = 'index.html'; 
+  });
+
+      window.deleteNotification = async function(id) {
+        await fetch(`https://notification-l3sd.onrender.com/api/notifications/${id}`, { method: 'DELETE' });
+        loadNotifications();
+      };
+
+      loadNotifications();
+
+
+    });
+  </script>
+</body>
+</html>

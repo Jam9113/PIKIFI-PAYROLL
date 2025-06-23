@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Employee Portal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins"/>
+  <link rel="stylesheet" href="css/main.css" />
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border: 1px solid #ddd;
+    }
+    th {
+      background-color: #009ddc;
+      color: white;
+    }
+    .print-btn {
+      background-color: #fbbf24;
+      color: black;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .leave-form {
+      margin-top: 30px;
+    }
+    .leave-form input, .leave-form select {
+      padding: 8px;
+      margin: 5px 0;
+      width: 100%;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .leave-form button {
+      background-color: #009ddc;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin-top: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .leave-form button:hover {
+      background-color: #007bbd;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <img src="./img/pikifi_logo.png" alt="Logo" class="img" />
+    <div class="logo">PIKIFI</div>
+    <ul class="main">
+      <li><a href="index.html"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
+      <li><a href="payroll.html"><i class="fas fa-money-bill-wave"></i> <span>Payroll</span></a></li>
+      <li><a href="payroll-history.html"><i class="fas fa-history"></i> <span>Payroll History</span></a></li>
+      <li class="active"><a href="employee.html"><i class="fas fa-user-tie"></i> <span>Employee</span></a></li>
+      <li><a href="bonus.html"><i class="fas fa-calendar-alt"></i> <span>13th Month Pay</span></a></li>
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="header">
+      <h1>Employee Section</h1>
+    </div>
+
+    <div class="container">
+      <h3>My Payslips</h3>
+      <table id="payslipTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Employee</th>
+            <th>Net Salary</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <div class="leave-form">
+        <h3>File a Leave Request</h3>
+        <form id="leaveForm">
+          <label for="leaveDate">Leave Date:</label>
+          <input type="date" id="leaveDate" required>
+
+          <label for="leaveType">Leave Type:</label>
+          <select id="leaveType" required>
+            <option disabled selected value="">Select Type</option>
+            <option value="Sick">Sick</option>
+            <option value="Vacation">Vacation</option>
+            <option value="Emergency">Emergency</option>
+          </select>
+
+          <label for="reason">Reason:</label>
+          <input type="text" id="reason" placeholder="Enter reason" required>
+
+          <button type="submit">Submit Leave Request</button>
+        </form>
+      </div>
+      <tbody></tbody>
+  </table>
+</div>
+ <div class="employee-section" style="margin-top: 40px;">
+      <h3> Leave Requests</h3>
+      <table id="leaveTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Reason</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+ </div>
+    </div>
+ <script src="js/portal.js"></script>
+</body>
+</html>
